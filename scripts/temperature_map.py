@@ -3,6 +3,8 @@ import cartopy.feature as feat
 import matplotlib.pyplot as plt
 from cartopy.io import shapereader
 from metpy.plots import add_logo
+import matplotlib
+matplotlib.use('Agg')
 from matplotlib.animation import ArtistAnimation
 from datetime import datetime, timedelta
 import pandas as pd
