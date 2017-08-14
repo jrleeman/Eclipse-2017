@@ -55,7 +55,10 @@ for state in states.split():
 
 # Outfile
 path = os.path.join('..', 'data', 'surface_obs', 'ASOS_surface_obs.txt')
-os.remove(path)  # Remove any old data sitting there.
+try:
+    os.remove(path)  # Remove any old data sitting there.
+except:
+    pass
 f = open(path, 'wb')
 
 for network in networks:
