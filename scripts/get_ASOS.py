@@ -8,8 +8,8 @@ from urllib.request import urlopen
 # Only change these start/end times. Goes up to the last hour, but does
 # not include it.
 #
-start_time = datetime(2017, 8, 8, 15)
-end_time = datetime(2017, 8, 8, 21)
+start_time = datetime(2017, 8, 8, 0) # 15
+end_time = datetime(2017, 8, 9, 0) # 21
 
 def download_data(uri, max_attempts=6):
     """Fetch the data from the IEM
