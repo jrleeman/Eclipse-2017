@@ -23,9 +23,9 @@ state_boundaries = feat.NaturalEarthFeature(category='cultural',
                                             scale='50m', facecolor='none')
 
 # Create the figure and an axes set to the projection
-fig = plt.figure(figsize=(20, 10))
+fig = plt.figure(figsize=(15.25, 10))
 ax = fig.add_subplot(1, 1, 1, projection=proj)
-
+plt.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=0, hspace=0)
 # Add some various map elements to the plot to make it recognizable
 ax.add_feature(feat.LAND, zorder=-1)
 ax.add_feature(feat.OCEAN, zorder=-1)
@@ -44,7 +44,7 @@ ax.add_geometries(list(umbra_path.geometries()), ccrs.PlateCarree(), edgecolor='
 ax.add_geometries(list(center_path.geometries()), ccrs.PlateCarree(), edgecolor='None', facecolor='red', alpha=0.5)
 
 # Add the MetPy Logo
-fig = add_logo(fig)
+fig = add_logo(fig, x=25, y=25, size='large')
 
 # Make the text stand out even better using matplotlib's path effects
 outline_effect = [patheffects.withStroke(linewidth=2, foreground='black')]
