@@ -38,15 +38,14 @@ while not triggered:
         print('Making Animations...')
         with mp.Pool(processes=4) as pool:
             scripts = [['goes_animations.py', str(channel)] for channel in range(1, 17)]
-            # Append the surface maps here as well
-            scripts = scripts + ['temperature_change_map.py', 'temperature_map.py']
+            scripts.insert(0, ['temperature_change_map.py', 'temperature_map.py'])
             for script in scripts:
                 pool.apply_async(run_script, args=(script,), callback=log_result)
             pool.close()
             pool.join()
 
         triggered = True
-        
+
     else:
         minutes_to_run = round((trigger_time - now).total_seconds() / 60.0)
         print('Script will fire in {} minutes'.format(minutes_to_run))
