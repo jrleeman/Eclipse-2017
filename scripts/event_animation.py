@@ -1,8 +1,8 @@
+import matplotlib
+matplotlib.use('Agg')
 import cartopy.crs as ccrs
 import cartopy.feature as feat
 from cartopy.io import shapereader
-import matplotlib
-matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.animation import ArtistAnimation
 from matplotlib import patheffects

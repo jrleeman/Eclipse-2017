@@ -1,10 +1,10 @@
+import matplotlib
+matplotlib.use('Agg')
 import cartopy.crs as ccrs
 import cartopy.feature as feat
 import matplotlib.pyplot as plt
 from cartopy.io import shapereader
 from metpy.plots import add_logo
-import matplotlib
-matplotlib.use('Agg')
 from matplotlib.animation import ArtistAnimation
 from datetime import datetime, timedelta
 import pandas as pd
@@ -64,8 +64,9 @@ state_boundaries = feat.NaturalEarthFeature(category='cultural',
                                             scale='50m', facecolor='none')
 
 # Create the figure and an axes set to the projection
-fig = plt.figure(figsize=(20, 10))
+fig = plt.figure(figsize=(13.75, 10))
 ax = fig.add_subplot(1, 1, 1, projection=proj)
+plt.subplots_adjust(left=0, bottom=0.055, right=1, top=1, wspace=0, hspace=0)
 
 # Add some various map elements to the plot to make it recognizable
 ax.add_feature(feat.LAND, zorder=-1)
@@ -81,6 +82,9 @@ start_time = datetime(2017, 8, 8, 15) # 15
 end_time = datetime(2017, 8, 8, 21) # 21
 interval = timedelta(minutes=10)
 
+# Add the MetPy Logo
+fig = add_logo(fig, x=0, y=98, size='large')
+
 times = []
 artists = []
 time = start_time
@@ -90,7 +94,6 @@ while time <= end_time:
 
 
 for time in times:
-    print(time)
     delta_df = get_temperature_change(df, time, timedelta(hours=1), timedelta(minutes=10))
     longitude = delta_df['lon']
     latitude = delta_df['lat']
@@ -106,7 +109,9 @@ for time in times:
 
     artists.append((sc, text_time))
 
-plt.colorbar(sc)
+cb = plt.colorbar(sc,orientation='horizontal', fraction=0.035, pad=0.01, aspect=40)
+cb.set_label(u'Temperature Change \N{DEGREE FAHRENHEIT}', fontsize=14)
+cb.ax.tick_params(labelsize=12)
 
 anim = ArtistAnimation(fig, artists, interval=400., blit=False)
 
