@@ -28,7 +28,7 @@ while not triggered:
 
         print('Downloading data...')
         scripts = [['get_GOES.py', str(channel)] for channel in range(1, 17)]
-        scripts.insert(0, 'get_ASOS.py')
+        scripts.insert(0, ['get_ASOS.py'])
         with mp.Pool(processes=6) as pool:
             for script in scripts:
                 pool.apply_async(run_script, args=(script,), callback=log_result)
@@ -38,10 +38,10 @@ while not triggered:
         print('Making Animations/Images...')
         with mp.Pool(processes=4) as pool:
             scripts = [['goes_animations.py', str(channel)] for channel in range(1, 17)]
-            scripts.insert(0, 'temperature_change_map.py')
-            scripts.insert(0, 'temperature_map.py')
-            scripts.insert(0, 'event_static_image.py')
-            scripts.insert(0, 'event_animation.py')
+            scripts.insert(0, ['temperature_change_map.py'])
+            scripts.insert(0, ['temperature_map.py'])
+            scripts.insert(0, ['event_static_image.py'])
+            scripts.insert(0, ['event_animation.py'])
             for script in scripts:
                 pool.apply_async(run_script, args=(script,), callback=log_result)
             pool.close()
