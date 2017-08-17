@@ -23,7 +23,7 @@ def run_script(script):
         return proc.returncode
 
 while not triggered:
-    now = datetime.now()
+    now = datetime.utcnow()
     if now >= trigger_time:
 
         print('Downloading data...')
