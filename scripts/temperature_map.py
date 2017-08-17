@@ -48,8 +48,8 @@ ax.add_feature(feat.BORDERS, edgecolor='black')
 # Set plot bounds
 ax.set_extent([235., 290., 20., 55.])
 
-start_time = datetime(2017, 8, 8, 15) # 15
-end_time = datetime(2017, 8, 8, 21) # 21
+start_time = datetime(2017, 8, 16, 15) # 15
+end_time = datetime(2017, 8, 16, 21) # 21
 interval = timedelta(minutes=10)
 
 # Add the MetPy Logo
