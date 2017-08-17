@@ -6,7 +6,7 @@ import multiprocessing as mp
 #
 # When should this script fire off
 #
-trigger_time = datetime(2017, 8, 10, 15, 48)
+trigger_time = datetime(2017, 8, 17, 15, 0)
 
 triggered = False
 
@@ -41,6 +41,7 @@ while not triggered:
             scripts.insert(0, 'temperature_change_map.py')
             scripts.insert(0, 'temperature_map.py')
             scripts.insert(0, 'event_static_image.py')
+            scripts.insert(0, 'event_animation.py')
             for script in scripts:
                 pool.apply_async(run_script, args=(script,), callback=log_result)
             pool.close()
