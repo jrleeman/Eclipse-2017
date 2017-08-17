@@ -27,10 +27,10 @@ while not triggered:
     if now >= trigger_time:
 
         print('Running jobs...')
-        asos_download_scripts = ['get_ASOS.py']
+        asos_download_scripts = [['get_ASOS.py']]
         goes_download_scripts = [['get_GOES.py', str(channel)] for channel in range(1, 17)]
         goes_animation_scripts = [['goes_animations.py', str(channel)] for channel in range(1, 17)]
-        general_animation_scripts = ['event_animation.py', 'event_static_image.py', 'temperature_change_map.py', 'temperature_map.py']
+        general_animation_scripts = [['event_animation.py'], ['event_static_image.py'], ['temperature_change_map.py'], ['temperature_map.py']]
         scripts = asos_download_scripts + goes_download_scripts + goes_animation_scripts + general_animation_scripts
         with mp.Pool(processes=6) as pool:
             for script in scripts:
