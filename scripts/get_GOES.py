@@ -8,8 +8,8 @@ from siphon.catalog import TDSCatalog
 # Only change these start/end times. Goes up to the last hour, but does
 # not include it.
 #
-start_time = datetime(2017, 8, 16, 15)
-end_time = datetime(2017, 8, 16, 21)
+start_time = datetime(2017, 8, 21, 15)
+end_time = datetime(2017, 8, 21, 21)
 
 channel = int(sys.argv[1])
 

@@ -6,7 +6,7 @@ import multiprocessing as mp
 #
 # When should this script fire off
 #
-trigger_time = datetime(2017, 8, 17, 15, 0)
+trigger_time = datetime(2017, 8, 21, 21, 10)
 
 triggered = False
 
