@@ -82,6 +82,11 @@ start_time = datetime(2017, 8, 21, 15) # 15
 end_time = datetime(2017, 8, 21, 21) # 21
 interval = timedelta(minutes=10)
 
+# Read shapefiles with eclipse data
+umbra_path = shapereader.Reader('../data/eclipse2017_shapefiles/w_upath17.shp')
+center_path = shapereader.Reader('../data/eclipse2017_shapefiles_1s/ucenter17_1s.shp')
+umbras = shapereader.Reader('../data/eclipse2017_shapefiles_1s/umbra17_1s.shp')
+
 # Add the MetPy Logo
 fig = add_logo(fig, x=0, y=98, size='large')
 
@@ -92,22 +97,42 @@ while time <= end_time:
     times.append(time)
     time = time + interval
 
+# Plot a shaded umbra path
+ax.add_geometries(list(umbra_path.geometries()), ccrs.PlateCarree(), edgecolor='None', facecolor='black', alpha=0.5)
 
+# Plot the path center
+ax.add_geometries(list(center_path.geometries()), ccrs.PlateCarree(), edgecolor='None', facecolor='red', alpha=0.5)
+
+# Time that the 1 second umbras file begins
+umbras_start_time = datetime(2017, 8, 21, 17, 12, 0)
+umbra_shapes = list(umbras.geometries())
 for time in times:
+    print(time)
+    umbra_number = (time - umbras_start_time).seconds
+
+
     delta_df = get_temperature_change(df, time, timedelta(hours=1), timedelta(minutes=10))
     longitude = delta_df['lon']
     latitude = delta_df['lat']
     temperature = delta_df['temp_change']
     # Plot stations as colored dots
     sc = ax.scatter(longitude, latitude, c=temperature, transform=ccrs.PlateCarree(),
-                    cmap=plt.get_cmap('coolwarm'), norm=plt.Normalize(-20, 20))
+                    cmap=plt.get_cmap('coolwarm'), norm=plt.Normalize(-10, 10))
 
     text_time = ax.text(0.99, 0.01, time.strftime('%d %B %Y %H:%M:%SZ'),
                    horizontalalignment='right', transform=ax.transAxes,
                    color='white', fontsize='x-large', weight='bold', animated=True)
     text_time.set_path_effects(outline_effect)
 
-    artists.append((sc, text_time))
+    if umbra_number >= 0:
+        try:
+            scu = ax.add_geometries(umbra_shapes[umbra_number], ccrs.PlateCarree(), edgecolor='black', facecolor='#f4d942', alpha=0.5)
+            print(umbra_number)
+            artists.append((sc, scu, text_time))
+        except:
+            print("Error: ", umbra_number)
+            artists.append((sc, text_time))
+
 
 cb = plt.colorbar(sc,orientation='horizontal', fraction=0.035, pad=0.01, aspect=40)
 cb.set_label(u'Temperature Change \N{DEGREE FAHRENHEIT}', fontsize=14)

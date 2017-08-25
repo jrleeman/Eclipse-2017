@@ -2,10 +2,13 @@ from netCDF4 import Dataset
 import cartopy.crs as ccrs
 import cartopy.feature as cfeat
 import matplotlib.pyplot as plt
+from cartopy.io import shapereader
 from IPython.display import HTML
 from matplotlib.animation import ArtistAnimation
 from datetime import datetime
 from matplotlib import patheffects
+from metpy.plots import add_logo
+import numpy as np
 import os
 import sys
 import glob
@@ -49,13 +52,22 @@ def make_channel_animation(channel):
                                                  name='admin_1_states_provinces_lakes',
                                                  scale='50m', facecolor='none')
 
+    # Read shapefiles with eclipse data
+    center_path = shapereader.Reader('../data/eclipse2017_shapefiles_1s/ucenter17_1s.shp')
+
     # Create the figure and base map
-    fig = plt.figure(figsize=(10,10))
+    fig = plt.figure(figsize=(13.25,10))
     ax = fig.add_subplot(1, 1, 1, projection=proj)
+    plt.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=0, hspace=0)
+
     ax.coastlines(zorder=2)
     ax.coastlines(resolution='50m', color='black')
     ax.add_feature(state_boundaries, linestyle=':', edgecolor='black')
     ax.add_feature(cfeat.BORDERS, linewidth='2', edgecolor='black')
+
+    # Plot the path center
+    ax.add_geometries(list(center_path.geometries()), ccrs.PlateCarree(), edgecolor='None', facecolor='red', alpha=0.5)
+
 
     #fig.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=None, hspace=None)
 
@@ -81,10 +93,15 @@ def make_channel_animation(channel):
         timestamp = datetime.strptime(nc.start_date_time, '%Y%j%H%M%S')
         img_data = nc.variables['Sectorized_CMI'][::downsample]
 
+        #img_data[np.where(img_data>=.9)] =0
+        img_data[np.where(img_data<=0.0001)] = 0
+        #img_data[np.isfinite(img_data)] = 0.
+        # 0 is black
+
         # Plot the image and the timestamp. We save the results of these plotting functions
         # so that we can tell the animation that these two things should be drawn as one
         # frame in the animation
-        im = ax.imshow(img_data, extent=(x.min(), x.max(), y.min(), y.max()), origin='upper')
+        im = ax.imshow(img_data, extent=(x.min(), x.max(), y.min(), y.max()), origin='upper', vmin=0.05, vmax=0.95)
 
         # Set colormap
         im.set_cmap(channel_params['cmap'])
@@ -104,6 +121,9 @@ def make_channel_animation(channel):
         outline_effect = [patheffects.withStroke(linewidth=2, foreground='black')]
         text_time.set_path_effects(outline_effect)
         text_channel.set_path_effects(outline_effect)
+
+        # Add the MetPy Logo
+        fig = add_logo(fig, x=25, y=25, size='large')
 
         # Stuff them in a tuple and add to the list of things to animate
         artists.append((im, text_time, text_channel))
