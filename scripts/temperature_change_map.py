@@ -1,31 +1,38 @@
-import matplotlib
-matplotlib.use('Agg')
+"""Create a map of temperature change during the eclipse."""
+from datetime import datetime, timedelta
+
 import cartopy.crs as ccrs
 import cartopy.feature as feat
-import matplotlib.pyplot as plt
 from cartopy.io import shapereader
-from metpy.plots import add_logo
-from matplotlib.animation import ArtistAnimation
-from datetime import datetime, timedelta
-import pandas as pd
-from metpy.units import units
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 from matplotlib import patheffects
+from matplotlib.animation import ArtistAnimation
+from metpy.plots import add_logo
+import pandas as pd
+
 
 def strip_data(df):
+    """Remove unused columns from the data."""
     names = [' dwpf', ' relh', ' drct',
-       ' sknt', ' p01i', ' alti', ' mslp', ' vsby', ' gust', ' skyc1',
-       ' skyc2', ' skyc3', ' skyc4', ' skyl1', ' skyl2', ' skyl3', ' skyl4',
-       ' presentwx', ' metar']
+             ' sknt', ' p01i', ' alti', ' mslp', ' vsby', ' gust', ' skyc1',
+             ' skyc2', ' skyc3', ' skyc4', ' skyl1', ' skyl2', ' skyl3',
+             ' skyl4', ' presentwx', ' metar']
     for colname in names:
         del df[colname]
     return df
 
+
 def get_within_time(df, time, tolerance):
+    """Get data within tolerance of time."""
     start_time = time - tolerance
     end_time = time + tolerance
-    return df[(df['valid']>=start_time) & (df['valid']<=end_time)]
+    return df[(df['valid'] >= start_time) & (df['valid'] <= end_time)]
+
 
 def get_temperature_change(df, time, span, tolerance):
+    """Calculate station based temperature change."""
     first_time_data = get_within_time(df, time - span, tolerance)
     last_time_data = get_within_time(df, time, tolerance)
 
@@ -43,17 +50,13 @@ def get_temperature_change(df, time, span, tolerance):
     del df['tmpf_y']
     return df
 
+
 df = pd.read_csv('../data/surface_obs/ASOS_surface_obs.txt', comment='#', na_values='M')
 df['valid'] = pd.to_datetime(df['valid'], format='%Y-%m-%d %H:%M', errors='coerce')
 df = strip_data(df)
 df['lon'] = pd.to_numeric(df['lon'], errors='coerce')
 df['lat'] = pd.to_numeric(df['lat'], errors='coerce')
 df['tmpf'] = pd.to_numeric(df['tmpf'], errors='coerce')
-# to Numeric
-#df['lon'] = pd.to_numeric(df['lon']) * units.degrees
-#df['lat'] = pd.to_numeric(df['lat']) * units.degrees
-#df['tmpf'] = pd.to_numeric(df['tmpf']) * units.degF
-
 
 # Make the text stand out even better using matplotlib's path effects
 outline_effect = [patheffects.withStroke(linewidth=2, foreground='black')]
@@ -78,8 +81,8 @@ ax.add_feature(feat.BORDERS, edgecolor='black')
 # Set plot bounds
 ax.set_extent([235., 290., 20., 55.])
 
-start_time = datetime(2017, 8, 21, 15) # 15
-end_time = datetime(2017, 8, 21, 21) # 21
+start_time = datetime(2017, 8, 21, 15)
+end_time = datetime(2017, 8, 21, 21)
 interval = timedelta(minutes=10)
 
 # Read shapefiles with eclipse data
@@ -98,10 +101,12 @@ while time <= end_time:
     time = time + interval
 
 # Plot a shaded umbra path
-ax.add_geometries(list(umbra_path.geometries()), ccrs.PlateCarree(), edgecolor='None', facecolor='black', alpha=0.5)
+ax.add_geometries(list(umbra_path.geometries()), ccrs.PlateCarree(),
+                  edgecolor='None', facecolor='black', alpha=0.5)
 
 # Plot the path center
-ax.add_geometries(list(center_path.geometries()), ccrs.PlateCarree(), edgecolor='None', facecolor='red', alpha=0.5)
+ax.add_geometries(list(center_path.geometries()), ccrs.PlateCarree(),
+                  edgecolor='None', facecolor='red', alpha=0.5)
 
 # Time that the 1 second umbras file begins
 umbras_start_time = datetime(2017, 8, 21, 17, 12, 0)
@@ -110,31 +115,35 @@ for time in times:
     print(time)
     umbra_number = (time - umbras_start_time).seconds
 
-
-    delta_df = get_temperature_change(df, time, timedelta(hours=1), timedelta(minutes=10))
+    delta_df = get_temperature_change(df, time, timedelta(hours=1),
+                                      timedelta(minutes=10))
     longitude = delta_df['lon']
     latitude = delta_df['lat']
     temperature = delta_df['temp_change']
     # Plot stations as colored dots
-    sc = ax.scatter(longitude, latitude, c=temperature, transform=ccrs.PlateCarree(),
+    sc = ax.scatter(longitude, latitude, c=temperature,
+                    transform=ccrs.PlateCarree(),
                     cmap=plt.get_cmap('coolwarm'), norm=plt.Normalize(-10, 10))
 
     text_time = ax.text(0.99, 0.01, time.strftime('%d %B %Y %H:%M:%SZ'),
-                   horizontalalignment='right', transform=ax.transAxes,
-                   color='white', fontsize='x-large', weight='bold', animated=True)
+                        horizontalalignment='right', transform=ax.transAxes,
+                        color='white', fontsize='x-large',
+                        weight='bold', animated=True)
     text_time.set_path_effects(outline_effect)
 
     if umbra_number >= 0:
         try:
-            scu = ax.add_geometries(umbra_shapes[umbra_number], ccrs.PlateCarree(), edgecolor='black', facecolor='#f4d942', alpha=0.5)
-            print(umbra_number)
+            scu = ax.add_geometries(umbra_shapes[umbra_number],
+                                    ccrs.PlateCarree(), edgecolor='black',
+                                    facecolor='#f4d942', alpha=0.5)
             artists.append((sc, scu, text_time))
         except:
-            print("Error: ", umbra_number)
+            # No umbra for this time
             artists.append((sc, text_time))
 
 
-cb = plt.colorbar(sc,orientation='horizontal', fraction=0.035, pad=0.01, aspect=40)
+cb = plt.colorbar(sc, orientation='horizontal', fraction=0.035,
+                  pad=0.01, aspect=40)
 cb.set_label(u'Temperature Change \N{DEGREE FAHRENHEIT}', fontsize=14)
 cb.ax.tick_params(labelsize=12)
 
